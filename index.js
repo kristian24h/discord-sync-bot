@@ -129,16 +129,6 @@ async function registerCommands() {
           .setRequired(true)
       )
       .toJSON(),
-    new SlashCommandBuilder()
-      .setName('rcon')
-      .setDescription('Send a command to the RCON server')
-      .addStringOption(option =>
-        option
-          .setName('command')
-          .setDescription('The command to send to RCON')
-          .setRequired(true)
-      )
-      .toJSON(),
   ];
 
   const rest = new REST({ version: '10' }).setToken(token);
@@ -278,39 +268,6 @@ client.on('interactionCreate', async interaction => {
       console.error('Database error:', error);
       await interaction.editReply({
         content: `❌ An error occurred while processing the token. Please try again later.`,
-      });
-    }
-  }
-
-  if (interaction.commandName === 'rcon') {
-    if (rconClients.length === 0) {
-      await interaction.reply({
-        content: '❌ RCON is not configured. Please set RCON_HOST, RCON_PORT, and RCON_PASSWORD in your .env file.',
-        ephemeral: true,
-      });
-      return;
-    }
-
-    const command = interaction.options.getString('command');
-    
-    try {
-      await interaction.deferReply({ ephemeral: false });
-      
-      const sentCount = sendRconCommandToAll(command);
-      
-      if (sentCount > 0) {
-        await interaction.editReply({
-          content: `✅ Command sent to ${sentCount} RCON server(s): \`${command}\``,
-        });
-      } else {
-        await interaction.editReply({
-          content: `❌ No RCON servers are connected. Please check your RCON configuration.`,
-        });
-      }
-    } catch (error) {
-      console.error('Error sending RCON command:', error);
-      await interaction.editReply({
-        content: `❌ Error sending command to RCON: ${error.message}`,
       });
     }
   }
